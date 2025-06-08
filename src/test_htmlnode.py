@@ -38,6 +38,10 @@ class TestLeafNode(unittest.TestCase):
     def test_leaf_no_value_with_tag(self):
         with self.assertRaises(ValueError):
             LeafNode("div", None)
+
+    def test_repr(self):
+        node = LeafNode("img", "", props={"src": "image.png", "alt": "An image"})
+        self.assertEqual(node.__repr__(), "LeafNode(img, "", {'src': 'image.png', 'alt': 'An image'})")
     
 
 if __name__ == "__main__":
