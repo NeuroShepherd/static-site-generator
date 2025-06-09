@@ -40,3 +40,16 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return new_nodes
             
         
+
+def extract_markdown_images(text):
+    """
+    Extracts image URLs from markdown image syntax in the given text.
+    Returns a list of tuples. Each tuple should contain the alt text 
+    and the URL of any markdown images. For example:
+    """
+
+    import re
+    pattern = r'!\[([^\]]*)\]\(([^)]+)\)'
+    matches = re.findall(pattern, text)
+    return [(alt_text, url) for alt_text, url in matches]
+

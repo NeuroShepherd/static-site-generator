@@ -1,4 +1,4 @@
-from helpers import text_node_to_html_node, split_nodes_delimiter
+from helpers import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images
 import unittest
 from textnode import TextNode, TextType
 
@@ -90,3 +90,10 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             new_nodes,
         )
+
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
