@@ -1,4 +1,4 @@
-from helpers import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, split_nodes_image, split_nodes_link
+from helpers import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, split_nodes_image, split_nodes_link, text_to_textnodes
 import unittest
 from textnode import TextNode, TextType
 
@@ -116,4 +116,23 @@ class TestSplitImages:
                 ),
             ],
             new_nodes,
+        )
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_plain_text(self):
+        nodes = text_to_textnodes("Just plain text.")
+        self.assertListEqual(
+            [TextNode("Just plain text.", TextType.TEXT)],
+            nodes,
+        )
+
+    def test_bold_text(self):
+        nodes = text_to_textnodes("This is **bold** text.")
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text.", TextType.TEXT),
+            ],
+            nodes,
         )
