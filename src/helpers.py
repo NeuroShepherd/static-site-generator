@@ -104,3 +104,14 @@ def text_to_textnodes(text):
     nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
     
     return nodes
+
+
+def markdown_to_blocks(markdown):
+    splitty_bois = markdown.split("\n\n")
+    lines_stripped = []
+    for boi in splitty_bois:
+        stripped = boi.strip()
+        if stripped:
+            lines_stripped.append(stripped)
+    return lines_stripped
+

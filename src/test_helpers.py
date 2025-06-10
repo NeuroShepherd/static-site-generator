@@ -1,6 +1,15 @@
-from helpers import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, split_nodes_image, split_nodes_link, text_to_textnodes
+from helpers import (
+    text_node_to_html_node, 
+    split_nodes_delimiter, 
+    extract_markdown_images, 
+    split_nodes_image, 
+    split_nodes_link, 
+    text_to_textnodes,
+    markdown_to_blocks,
+)
 import unittest
 from textnode import TextNode, TextType
+from htmlnode import HTMLNode, LeafNode
 
 class TestTextNodeToHTMLNode(unittest.TestCase):
     def test_text(self):
@@ -135,4 +144,26 @@ class TestTextToTextNodes(unittest.TestCase):
                 TextNode(" text.", TextType.TEXT),
             ],
             nodes,
+        )
+
+
+class TestMarkdownToBlocks(unittest.TestCase):
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
         )
