@@ -2,7 +2,6 @@ from textnode import TextNode, TextType
 from helpers import (
     source_to_dest,
     generate_page,
-    clear_public_dir,
     generate_pages_recursive,
 )
 import os, sys, shutil

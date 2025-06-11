@@ -3,6 +3,8 @@ from textnode import TextType, TextNode
 # from blocktype import block_to_block_type
 import re, os, shutil
 from enum import Enum
+from pathlib import Path
+
 
 
 
@@ -321,52 +323,38 @@ def extract_title(markdown):
     
 
 
-def generate_page(from_path, template_path, dest_path, basepath="/"):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+def generate_page(from_path, template_path, dest_path, basepath):
+    print(f" * {from_path} {template_path} -> {dest_path}")
+    from_file = open(from_path, "r")
+    markdown_content = from_file.read()
+    from_file.close()
 
-    with open(from_path, "r") as f:
-        markdown = f.read()
-    with open(template_path, "r") as temp:
-        template = temp.read()
+    template_file = open(template_path, "r")
+    template = template_file.read()
+    template_file.close()
 
-    content = markdown_to_html_node(markdown).to_html()
-    title = extract_title(markdown)
+    node = markdown_to_html_node(markdown_content)
+    html = node.to_html()
+
+    title = extract_title(markdown_content)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
     template = template.replace('href="/', 'href="' + basepath)
     template = template.replace('src="/', 'src="' + basepath)
 
-    result = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    dest_dir_path = os.path.dirname(dest_path)
+    if dest_dir_path != "":
+        os.makedirs(dest_dir_path, exist_ok=True)
+    to_file = open(dest_path, "w")
+    to_file.write(template)
 
-    # now write the result as a new file with any necessary directories to the dest_path
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-    with open(dest_path, "w") as out:
-        out.write(result)
-
-
-def clear_public_dir():
-    public_dir = "public"
-    if os.path.exists(public_dir):
-        for item in os.listdir(public_dir):
-            item_path = os.path.join(public_dir, item)
-            if os.path.isdir(item_path):
-                shutil.rmtree(item_path)
-            else:
-                os.remove(item_path)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
-    """
-    Recursively generates pages from markdown files in the given directory.
-    """
-    for item in os.listdir(dir_path_content):
-        item_path = os.path.join(dir_path_content, item)
-        if os.path.isdir(item_path):
-            # Compute the corresponding subdirectory in the destination
-            sub_dest_dir = os.path.join(dest_dir_path, item)
-            generate_pages_recursive(item_path, template_path, sub_dest_dir, basepath)
-        elif item.endswith(".md"):
-            # Compute the relative path from the content root
-            rel_path = os.path.relpath(item_path, dir_path_content)
-            # Remove .md extension and add .html
-            html_filename = os.path.splitext(item)[0] + ".html"
-            # Compute the destination path, preserving subfolders
-            dest_path = os.path.join(dest_dir_path, html_filename)
-            generate_page(item_path, template_path, dest_path, basepath)
+    for filename in os.listdir(dir_path_content):
+        from_path = os.path.join(dir_path_content, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path, basepath)
+        else:
+            generate_pages_recursive(from_path, template_path, dest_path, basepath)
