@@ -320,14 +320,6 @@ def extract_title(markdown):
     return title_lines.pop(0) # the .pop method can be removed to return all titles, but we only want the first one
     
 
-def markdown_to_html_node(markdown):
-    blocks = markdown_to_blocks(markdown)
-    children = []
-    for block in blocks:
-        html_node = block_to_block_type(block)
-        children.append(html_node)
-    return ParentNode("div", children, None)
-
 
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
