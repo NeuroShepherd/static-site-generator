@@ -2,6 +2,7 @@ from htmlnode import LeafNode, ParentNode
 from textnode import TextType, TextNode
 # from blocktype import block_to_block_type
 import re, os, shutil
+from enum import Enum
 
 
 
