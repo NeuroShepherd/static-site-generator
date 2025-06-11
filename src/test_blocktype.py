@@ -1,5 +1,5 @@
 import unittest
-from blocktype import BlockType
+from helpers import BlockType
 
 class TestBlockType(unittest.TestCase):
     def test_block_to_block_type_paragraph(self):
@@ -15,7 +15,7 @@ class TestBlockType(unittest.TestCase):
         self.assertEqual(BlockType.QUOTE, BlockType("quote"))
 
     def test_block_to_block_type_unordered_list(self):
-        self.assertEqual(BlockType.UNORDERED_LIST, BlockType("unordered_list"))
+        self.assertEqual(BlockType.OLIST, BlockType("ordered_list"))
 
     def test_block_to_block_type_ordered_list(self):
-        self.assertEqual(BlockType.ORDERED_LIST, BlockType("ordered_list"))
+        self.assertEqual(BlockType.ULIST, BlockType("unordered_list"))
