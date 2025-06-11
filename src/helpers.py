@@ -1,6 +1,6 @@
 from htmlnode import LeafNode
 from textnode import TextType, TextNode
-import re
+import re, os, shutil
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
@@ -115,3 +115,22 @@ def markdown_to_blocks(markdown):
             lines_stripped.append(stripped)
     return lines_stripped
 
+
+
+def source_to_dest(source_dir, dest_dir):
+    # delete old
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
+    os.makedirs(dest_dir, exist_ok=True)
+
+    for item in os.listdir(source_dir):
+        src_path = os.path.join(source_dir, item)
+        dest_path = os.path.join(dest_dir, item)
+        if os.path.isdir(src_path):
+            source_to_dest(src_path, dest_path)  # Recursive call for subdirectories
+        else:
+            shutil.copy2(src_path, dest_path)
+            print(f"Copied: {src_path} -> {dest_path}")
+    
+
+print(source_to_dest("static", "public"))
