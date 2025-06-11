@@ -321,7 +321,7 @@ def extract_title(markdown):
     
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath="/"):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     with open(from_path, "r") as f:
@@ -331,6 +331,8 @@ def generate_page(from_path, template_path, dest_path):
 
     content = markdown_to_html_node(markdown).to_html()
     title = extract_title(markdown)
+    template = template.replace('href="/', 'href="' + basepath)
+    template = template.replace('src="/', 'src="' + basepath)
 
     result = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
 
@@ -350,7 +352,7 @@ def clear_public_dir():
             else:
                 os.remove(item_path)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     """
     Recursively generates pages from markdown files in the given directory.
     """
@@ -359,7 +361,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if os.path.isdir(item_path):
             # Compute the corresponding subdirectory in the destination
             sub_dest_dir = os.path.join(dest_dir_path, item)
-            generate_pages_recursive(item_path, template_path, sub_dest_dir)
+            generate_pages_recursive(item_path, template_path, sub_dest_dir, basepath)
         elif item.endswith(".md"):
             # Compute the relative path from the content root
             rel_path = os.path.relpath(item_path, dir_path_content)
@@ -367,4 +369,4 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             html_filename = os.path.splitext(item)[0] + ".html"
             # Compute the destination path, preserving subfolders
             dest_path = os.path.join(dest_dir_path, html_filename)
-            generate_page(item_path, template_path, dest_path)
+            generate_page(item_path, template_path, dest_path, basepath)
