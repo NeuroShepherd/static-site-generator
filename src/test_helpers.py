@@ -6,6 +6,7 @@ from helpers import (
     split_nodes_link, 
     text_to_textnodes,
     markdown_to_blocks,
+    extract_title,
 )
 import unittest
 from textnode import TextNode, TextType
@@ -167,3 +168,16 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+
+class TestExtractTitle(unittest.TestCase):
+    def test_extract_title(self):
+        md = "# This is a title\n\nThis is some content."
+        title = extract_title(md)
+        self.assertEqual(title, "This is a title")
+
+    def test_no_title(self):
+        md = "This is some content without a title."
+        with self.assertRaises(Exception):
+            extract_title(md)
+        

@@ -133,4 +133,18 @@ def source_to_dest(source_dir, dest_dir):
             print(f"Copied: {src_path} -> {dest_path}")
     
 
-print(source_to_dest("static", "public"))
+
+def extract_title(markdown):
+    """
+    Extracts the title from a markdown string.
+    The title is assumed to be the first line of the markdown.
+    """
+    lines = markdown.split("\n")
+    title_lines = []
+    for line in lines:
+        if line.startswith("# "):
+            title_lines.append(line.strip("# ").strip())
+    if len(title_lines) == 0:
+        raise Exception("No title found in markdown")
+    return title_lines.pop(0) # the .pop method can be removed to return all titles, but we only want the first one
+    
