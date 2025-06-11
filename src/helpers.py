@@ -349,3 +349,22 @@ def clear_public_dir():
                 shutil.rmtree(item_path)
             else:
                 os.remove(item_path)
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    """
+    Recursively generates pages from markdown files in the given directory.
+    """
+    for item in os.listdir(dir_path_content):
+        item_path = os.path.join(dir_path_content, item)
+        if os.path.isdir(item_path):
+            # Compute the corresponding subdirectory in the destination
+            sub_dest_dir = os.path.join(dest_dir_path, item)
+            generate_pages_recursive(item_path, template_path, sub_dest_dir)
+        elif item.endswith(".md"):
+            # Compute the relative path from the content root
+            rel_path = os.path.relpath(item_path, dir_path_content)
+            # Remove .md extension and add .html
+            html_filename = os.path.splitext(item)[0] + ".html"
+            # Compute the destination path, preserving subfolders
+            dest_path = os.path.join(dest_dir_path, html_filename)
+            generate_page(item_path, template_path, dest_path)
