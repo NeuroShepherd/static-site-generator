@@ -233,12 +233,27 @@ def split_nodes_image(old_nodes):
         if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
-        sections = extract_markdown_images(old_node.text)
-        if not sections:
+        original_text = old_node.text
+        images = extract_markdown_images(original_text)
+        if len(images) == 0:
             new_nodes.append(old_node)
             continue
-        for alt_text, url in sections:
-            new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+        for image in images:
+            sections = original_text.split(f"![{image[0]}]({image[1]})", 1)
+            if len(sections) != 2:
+                raise ValueError("invalid markdown, image section not closed")
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            new_nodes.append(
+                TextNode(
+                    image[0],
+                    TextType.IMAGE,
+                    image[1],
+                )
+            )
+            original_text = sections[1]
+        if original_text != "":
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
 
 
@@ -249,33 +264,42 @@ def split_nodes_link(old_nodes):
         if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
-        sections = re.split(r'\[(.*?)\]\((.*?)\)', old_node.text)
-        if len(sections) % 3 != 1:
-            raise ValueError("invalid markdown, formatted section not closed")
-        for i in range(0, len(sections), 3):
-            if sections[i] != "":
-                new_nodes.append(TextNode(sections[i], TextType.TEXT))
-            if i + 1 < len(sections) and sections[i + 1] != "":
-                new_nodes.append(TextNode(sections[i + 1], TextType.LINK, sections[i + 2]))
+        original_text = old_node.text
+        links = extract_markdown_links(original_text)
+        if len(links) == 0:
+            new_nodes.append(old_node)
+            continue
+        for link in links:
+            sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
+            if len(sections) != 2:
+                raise ValueError("invalid markdown, link section not closed")
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
+            original_text = sections[1]
+        if original_text != "":
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
+
+def extract_markdown_images(text):
+    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+def extract_markdown_links(text):
+    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
 
 
 def text_to_textnodes(text):
-    """
-    Converts a raw string of markdown-flavored text into a list of TextNode objects.
-    """
     nodes = [TextNode(text, TextType.TEXT)]
-    # Split links
-    nodes = split_nodes_link(nodes)
-    # Split images
-    nodes = split_nodes_image(nodes)
-    # Split bold text
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
-    # Split italic text
     nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
-    # Split code blocks
     nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
-    
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
     return nodes
 
 
@@ -358,3 +382,21 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
             generate_page(from_path, template_path, dest_path, basepath)
         else:
             generate_pages_recursive(from_path, template_path, dest_path, basepath)
+
+
+import os
+import shutil
+
+
+def copy_files_recursive(source_dir_path, dest_dir_path):
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
+
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
+        else:
+            copy_files_recursive(from_path, dest_path)
