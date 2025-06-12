@@ -1,8 +1,8 @@
 from enum import Enum
-# from helpers import text_node_to_html_node, text_to_textnodes
-from htmlnode import ParentNode
-from textnode import TextNode, TextType
 
+from htmlnode import ParentNode
+from inline_markdown import text_to_textnodes
+from textnode import text_node_to_html_node, TextNode, TextType
 
 
 class BlockType(Enum):
@@ -12,14 +12,6 @@ class BlockType(Enum):
     QUOTE = "quote"
     OLIST = "ordered_list"
     ULIST = "unordered_list"
-
-def markdown_to_html_node(markdown):
-    blocks = markdown_to_blocks(markdown)
-    children = []
-    for block in blocks:
-        html_node = block_to_block_type(block)
-        children.append(html_node)
-    return ParentNode("div", children, None)
 
 
 def markdown_to_blocks(markdown):
